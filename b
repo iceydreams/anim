@@ -40,7 +40,7 @@ end
 
 UserInputService.InputBegan:Connect(function(input, gpe)
 	if gpe then return end
-	if input.KeyCode == Enum.KeyCode.B then
+	if input.KeyCode == Enum.KeyCode.N then
 		_G.behindback = not _G.behindback
 	end
 end)
