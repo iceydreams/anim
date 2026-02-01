@@ -1,0 +1,76 @@
+_G.cannog = false
+_G.cannogSpeed = 1
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local plr = Players.LocalPlayer
+local ANIM_ID = 125201240575195
+local track
+local lastState = false
+local lastSpeed = _G.cannogSpeed
+
+local function play(char)
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	if not hum then return end
+
+	local ok, objs = pcall(function()
+		return game:GetObjects("rbxassetid://" .. ANIM_ID)
+	end)
+
+	local anim = ok and objs and objs[1]
+	if anim and anim:IsA("Animation") then
+		if track then pcall(function() track:Stop(0) end) end
+		local tr = hum:LoadAnimation(anim)
+		tr.Looped = true
+		tr.Priority = Enum.AnimationPriority.Action
+		tr:Play()
+		tr:AdjustSpeed(_G.cannogSpeed or 1)
+		track = tr
+		lastSpeed = _G.cannogSpeed
+	end
+end
+
+local function stop()
+	if track then
+		pcall(function() track:Stop(0) end)
+		track = nil
+	end
+end
+
+UserInputService.InputBegan:Connect(function(input, gpe)
+	if gpe then return end
+	if input.KeyCode == Enum.KeyCode.N then
+		_G.cannog = not _G.cannog
+	end
+end)
+
+task.spawn(function()
+	while true do
+		task.wait(0.1)
+
+		if _G.cannog ~= lastState then
+			lastState = _G.cannog
+			if _G.cannog then
+				if plr.Character then play(plr.Character) end
+			else
+				stop()
+			end
+		end
+
+		if track and _G.cannogSpeed ~= lastSpeed then
+			lastSpeed = _G.cannogSpeed
+			pcall(function()
+				track:AdjustSpeed(_G.cannogSpeed or 1)
+			end)
+		end
+	end
+end)
+
+plr.CharacterAdded:Connect(function(c)
+	if _G.cannog then
+		play(c)
+	else
+		stop()
+	end
+end)
